@@ -1,22 +1,23 @@
 <template>
   <main>
     <div class="container">
-      <form>
+      <form :onsubmit="teste">
         <div class="form-content">
 
           <div class="data">
             <label for="email">E-mail</label>
-            <input type="email" name="email" id="email" placeholder="E-mail">
+            <input type="email" name="email" v-model="steps.email" id="email" placeholder="E-mail">
           </div>
 
           <div class="data">
             <label for="body">Conteúdo do E-mail</label>
-            <textarea name="body" id="body" cols="30" rows="8" r placeholder="Digite o conteúdo do e-mail"></textarea>
+            <textarea name="body" id="body" v-model="steps.body" cols="30" rows="8" r
+              placeholder="Digite o conteúdo do e-mail"></textarea>
           </div>
 
         </div>
         <div class="container-button">
-          <button type="submit">Envair</button>
+          <button type="submit" :disabled="!validateForm">ENVIAR</button>
         </div>
       </form>
     </div>
@@ -24,6 +25,26 @@
 </template>
 
 <script setup lang="ts">
+import { computed, reactive } from 'vue';
+
+const steps = reactive({
+  email: '',
+  body: ''
+})
+
+const teste = (event: Event) => {
+  event.preventDefault()
+  alert(`E-mail: ${steps.email}, conteúdo: ${steps.body}`);
+  Object.assign(steps, {
+    body: '', email: ''
+  })
+}
+
+const validateForm = computed(() => {
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i
+
+  return !!steps.email.trim() && !!steps.body.trim() && steps.body.trim().length > 5 && regex.test(steps.email)
+})
 </script>
 
 <style scoped>
@@ -61,8 +82,28 @@ header {
 
 .container form .container-button button {
   border-radius: 4px;
-  width: 90px;
+  font-weight: bold;
+  width: 120px;
   height: 30px;
+  color: #ffffff;
+  border: 0 none;
+  background-color: var(--color-backgroud-btn);
+}
+
+.container form .container-button button:hover {
+  border-radius: 4px;
+  width: 120px;
+  height: 30px;
+  color: #76ABAE;
+  background-color: var(--color-background);
+}
+
+.container form .container-button button:disabled {
+  border-radius: 4px;
+  width: 120px;
+  height: 30px;
+  color: #ffffff;
+  background-color: gray;
 }
 
 .container .form-content {
@@ -88,12 +129,44 @@ header {
 }
 
 .container .form-content .data textarea {
+  background-color: var(--color-background-soft);
   color: var(--color-text);
+  border-radius: 4px;
+  padding: 8px;
+  max-height: 180px;
+  min-height: 40px;
+  max-width: 100%;
+  min-width: 100%;
+  height: 100%;
+  width: 100%;
+  box-shadow: 0 0 0 0;
+  border: 0 none;
+  outline: 0;
+}
+
+.container .form-content .data textarea:focus {
+  border: 1px solid rgb(0, 104, 104);
+  outline: none;
+}
+
+.container .form-content .data input {
+  background-color: var(--color-background-soft);
+  color: var(--color-text);
+  border-radius: 4px;
+  padding: 8px;
   max-width: 100%;
   min-width: 100%;
   max-height: 180px;
   height: 100%;
   width: 100%;
+  box-shadow: 0 0 0 0;
+  border: 0 none;
+  outline: 0;
+}
+
+.container .form-content .data input:focus {
+  border: 1px solid rgb(0, 104, 104);
+  outline: none;
 }
 
 @media (min-width: 1024px) {
