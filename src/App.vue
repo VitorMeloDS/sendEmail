@@ -1,20 +1,31 @@
 <template>
   <main>
     <div class="container">
-      <form :onsubmit="teste">
+      <form :onsubmit="submit">
         <div class="form-content">
-
           <div class="data">
             <label for="email">E-mail</label>
-            <input type="email" name="email" v-model="steps.email" id="email" placeholder="E-mail">
+            <input
+              type="email"
+              name="email"
+              v-model="steps.email"
+              id="email"
+              placeholder="E-mail"
+            />
           </div>
 
           <div class="data">
             <label for="body">Conteúdo do E-mail</label>
-            <textarea name="body" id="body" v-model="steps.body" cols="30" rows="8" r
-              placeholder="Digite o conteúdo do e-mail"></textarea>
+            <textarea
+              name="body"
+              id="body"
+              v-model="steps.body"
+              cols="30"
+              rows="8"
+              r
+              placeholder="Digite o conteúdo do e-mail"
+            ></textarea>
           </div>
-
         </div>
         <div class="container-button">
           <button type="submit" :disabled="!validateForm">ENVIAR</button>
@@ -25,25 +36,47 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
+import { useToast } from 'vue-toast-notification'
+import { computed, reactive } from 'vue'
+import axios, { AxiosError } from 'axios'
+
+const baseURL = import.meta.env.VITE_API_HOST
+
+const $toast = useToast()
 
 const steps = reactive({
   email: '',
   body: ''
 })
 
-const teste = (event: Event) => {
+const submit = (event: Event) => {
   event.preventDefault()
-  alert(`E-mail: ${steps.email}, conteúdo: ${steps.body}`);
+
+  axios
+    .post(baseURL + '/send', { email: steps.email, content: steps.body })
+    .then(() => {
+      $toast.success('E-mail enviado!', { position: 'top-right' })
+    })
+    .catch((error) => {
+      if (error instanceof AxiosError) $toast.error(error.message)
+      else $toast.error('Erro ao enviar o e-mail!')
+    })
+
   Object.assign(steps, {
-    body: '', email: ''
+    body: '',
+    email: ''
   })
 }
 
 const validateForm = computed(() => {
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i
 
-  return !!steps.email.trim() && !!steps.body.trim() && steps.body.trim().length > 5 && regex.test(steps.email)
+  return (
+    !!steps.email.trim() &&
+    !!steps.body.trim() &&
+    steps.body.trim().length > 5 &&
+    regex.test(steps.email)
+  )
 })
 </script>
 
@@ -94,7 +127,7 @@ header {
   border-radius: 4px;
   width: 120px;
   height: 30px;
-  color: #76ABAE;
+  color: #76abae;
   background-color: var(--color-background);
 }
 
@@ -125,7 +158,7 @@ header {
 }
 
 .container .form-content .data label:after {
-  content: ": "
+  content: ': ';
 }
 
 .container .form-content .data textarea {
@@ -184,6 +217,16 @@ header {
     display: flex;
     place-items: flex-start;
     flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 580px) {
+  .container {
+    background-color: var(--color-background-mute);
+    box-shadow: 2px 4px 2px 2px var(--color-border);
+    border-radius: 12px;
+    height: 420px;
+    width: 320px;
   }
 }
 </style>
