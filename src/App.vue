@@ -22,7 +22,7 @@
               v-model="steps.body"
               cols="30"
               rows="8"
-              r
+              minlength="3"
               placeholder="Digite o conteúdo do e-mail"
             ></textarea>
           </div>
@@ -74,7 +74,7 @@ const validateForm = computed(() => {
   return (
     !!steps.email.trim() &&
     !!steps.body.trim() &&
-    steps.body.trim().length > 5 &&
+    steps.body.trim().length >= 3 &&
     regex.test(steps.email)
   )
 })
