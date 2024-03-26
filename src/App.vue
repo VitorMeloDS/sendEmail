@@ -39,26 +39,34 @@ const steps = reactive({
 const submit = (event: Event) => {
   event.preventDefault()
 
-  const pattern = /<[^>]+>/;
+  const patternHtml = /<[^>]+>/;
+  const patternLink = /(http(s)?:\/\/[^\s]+)/g;
 
-  if (pattern.test(steps.body)) {
-    $toast.warning('O conteúdo do e-mail não pode ter HTML!', { position: 'top-right' })
-  } else {
-    axios
-      .post(baseURL + '/send', { email: steps.email, content: steps.body })
-      .then(() => {
-        $toast.success('E-mail enviado!', { position: 'top-right' })
-      })
-      .catch((error) => {
-        if (error instanceof AxiosError) $toast.error(error.message)
-        else $toast.error('Erro ao enviar o e-mail!')
-      })
-
-    Object.assign(steps, {
-      body: '',
-      email: ''
-    })
+  if (patternHtml.test(steps.body)) {
+    $toast.warning('O conteúdo do e-mail não pode ter HTML!', { position: 'top-right' });
+    return
   }
+
+  if (patternLink.test(steps.body)) {
+    $toast.warning('O conteúdo do e-mail não pode ter Link!', { position: 'top-right' });
+    return
+  }
+
+  axios
+    .post(baseURL + '/send', { email: steps.email, content: steps.body })
+    .then(() => {
+      $toast.success('E-mail enviado!', { position: 'top-right' })
+    })
+    .catch((error) => {
+      if (error instanceof AxiosError) $toast.error(error.message)
+      else $toast.error('Erro ao enviar o e-mail!')
+    })
+
+  Object.assign(steps, {
+    body: '',
+    email: ''
+  })
+
 
 }
 
