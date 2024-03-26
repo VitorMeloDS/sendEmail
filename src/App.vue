@@ -5,26 +5,13 @@
         <div class="form-content">
           <div class="data">
             <label for="email">E-mail</label>
-            <input
-              type="email"
-              name="email"
-              v-model="steps.email"
-              id="email"
-              placeholder="E-mail"
-            />
+            <input type="email" name="email" v-model="steps.email" id="email" placeholder="E-mail" />
           </div>
 
           <div class="data">
             <label for="body">Conteúdo do E-mail</label>
-            <textarea
-              name="body"
-              id="body"
-              v-model="steps.body"
-              cols="30"
-              rows="8"
-              minlength="3"
-              placeholder="Digite o conteúdo do e-mail"
-            ></textarea>
+            <textarea name="body" id="body" v-model="steps.body" cols="30" rows="8" minlength="3"
+              placeholder="Digite o conteúdo do e-mail"></textarea>
           </div>
         </div>
         <div class="container-button">
@@ -52,20 +39,27 @@ const steps = reactive({
 const submit = (event: Event) => {
   event.preventDefault()
 
-  axios
-    .post(baseURL + '/send', { email: steps.email, content: steps.body })
-    .then(() => {
-      $toast.success('E-mail enviado!', { position: 'top-right' })
-    })
-    .catch((error) => {
-      if (error instanceof AxiosError) $toast.error(error.message)
-      else $toast.error('Erro ao enviar o e-mail!')
-    })
+  const pattern = /<[^>]+>/;
 
-  Object.assign(steps, {
-    body: '',
-    email: ''
-  })
+  if (pattern.test(steps.body)) {
+    $toast.warning('O conteúdo do e-mail não pode ter HTML!', { position: 'top-right' })
+  } else {
+    axios
+      .post(baseURL + '/send', { email: steps.email, content: steps.body })
+      .then(() => {
+        $toast.success('E-mail enviado!', { position: 'top-right' })
+      })
+      .catch((error) => {
+        if (error instanceof AxiosError) $toast.error(error.message)
+        else $toast.error('Erro ao enviar o e-mail!')
+      })
+
+    Object.assign(steps, {
+      body: '',
+      email: ''
+    })
+  }
+
 }
 
 const validateForm = computed(() => {
